@@ -9,12 +9,20 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var isLoading = true
+    @State private var isLoggedIn = false
 
     var body: some View {
         ZStack {
             if isLoading {
                 SplashView()
                     .transition(.opacity)
+            } else if !isLoggedIn {
+                LoginView {
+                    withAnimation(.easeInOut(duration: 0.4)) {
+                        isLoggedIn = true
+                    }
+                }
+                .transition(.opacity)
             } else {
                 MainView()
                     .transition(.opacity)
@@ -24,6 +32,116 @@ struct ContentView: View {
             try? await Task.sleep(for: .seconds(2))
             withAnimation(.easeInOut(duration: 0.4)) {
                 isLoading = false
+            }
+        }
+    }
+}
+
+struct LoginView: View {
+    var onLogin: () -> Void
+
+    @State private var email = ""
+    @State private var password = ""
+
+    var body: some View {
+        ZStack {
+            LinearGradient(
+                colors: [OceanTheme.foam, OceanTheme.skyBlue.opacity(0.5)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+
+            VStack(spacing: 24) {
+                Spacer()
+
+                VStack(spacing: 8) {
+                    Image(systemName: "camera.viewfinder")
+                        .font(.system(size: 56, weight: .light))
+                        .foregroundStyle(OceanTheme.deepBlue)
+                    Text("PicSpot")
+                        .font(.system(size: 32, weight: .bold))
+                        .foregroundStyle(OceanTheme.deepBlue)
+                    Text("로그인하고 시작하기")
+                        .font(.subheadline)
+                        .foregroundStyle(OceanTheme.oceanBlue)
+                }
+
+                VStack(spacing: 12) {
+                    TextField("이메일", text: $email)
+                        .textContentType(.emailAddress)
+                        .keyboardType(.emailAddress)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .padding(14)
+                        .background(OceanTheme.foam)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .strokeBorder(OceanTheme.skyBlue, lineWidth: 1)
+                        )
+
+                    SecureField("비밀번호", text: $password)
+                        .textContentType(.password)
+                        .padding(14)
+                        .background(OceanTheme.foam)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .strokeBorder(OceanTheme.skyBlue, lineWidth: 1)
+                        )
+                }
+                .padding(.horizontal, 24)
+
+                Button(action: onLogin) {
+                    Text("로그인")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(OceanTheme.deepBlue)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .padding(.horizontal, 24)
+
+                HStack(spacing: 4) {
+                    Text("아직 회원이 아니신가요?")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                    Button("회원가입") { }
+                        .font(.footnote.bold())
+                        .foregroundStyle(OceanTheme.deepBlue)
+                }
+
+                Spacer()
+
+                HStack {
+                    Rectangle()
+                        .fill(OceanTheme.skyBlue)
+                        .frame(height: 1)
+                    Text("또는")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Rectangle()
+                        .fill(OceanTheme.skyBlue)
+                        .frame(height: 1)
+                }
+                .padding(.horizontal, 24)
+
+                Button(action: onLogin) {
+                    HStack {
+                        Image(systemName: "apple.logo")
+                        Text("Apple로 계속하기")
+                    }
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(Color.black)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 24)
             }
         }
     }
